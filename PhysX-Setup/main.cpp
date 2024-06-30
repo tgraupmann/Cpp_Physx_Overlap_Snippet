@@ -7,6 +7,7 @@
 
 #include <PxPhysicsAPI.h>
 #include <iostream>
+#include <corecrt_math_defines.h>
 
 using namespace physx;
 
@@ -17,13 +18,46 @@ using namespace physx;
 /// <param name="position"></param>
 /// <param name="dimensions"></param>
 /// <returns></returns>
-physx::PxRigidStatic* createStaticCube(physx::PxPhysics* physics, const physx::PxVec3& position, const physx::PxVec3& dimensions) {
-    physx::PxTransform transform(position);
+physx::PxRigidStatic* createStaticCube(physx::PxPhysics* physics, const physx::PxTransform& transform, const physx::PxVec3& dimensions) {
     physx::PxShape* shape = physics->createShape(physx::PxBoxGeometry(dimensions), *physics->createMaterial(0.5f, 0.5f, 0.6f));
-    physx::PxRigidStatic* actor = physics->createRigidStatic(transform);
-    actor->attachShape(*shape);
-    shape->release();
-    return actor;
+    if (shape)
+    {
+        physx::PxRigidStatic* actor = physics->createRigidStatic(transform);
+        if (actor)
+        {
+            actor->attachShape(*shape);
+        }
+        shape->release();
+        return actor;
+    }
+    return nullptr;
+}
+
+/// <summary>
+/// Function to convert Euler angles (in degrees) to a quaternion
+/// </summary>
+/// <param name="eulerAngles"></param>
+/// <returns></returns>
+PxQuat eulerAnglesToQuaternion(const float x, const float y, const float z) {
+    // Convert Euler angles to radians if they are in degrees
+    float pitch = x * M_PI / 180.0f;
+    float yaw = y * M_PI / 180.0f;
+    float roll = z * M_PI / 180.0f;
+
+    // Normalize the angles to the range [-pi, pi]
+    pitch = fmod(pitch + M_PI, 2 * M_PI) - M_PI;
+    yaw = fmod(yaw + M_PI, 2 * M_PI) - M_PI;
+    roll = fmod(roll + M_PI, 2 * M_PI) - M_PI;
+
+    // Convert Euler angles to quaternions
+    PxQuat qPitch = PxQuat(pitch, PxVec3(1.0f, 0.0f, 0.0f)); // Pitch around X-axis
+    PxQuat qYaw = PxQuat(yaw, PxVec3(0.0f, 1.0f, 0.0f)); // Yaw around Y-axis
+    PxQuat qRoll = PxQuat(roll, PxVec3(0.0f, 0.0f, 1.0f)); // Roll around Z-axis
+
+    // Combine the quaternions
+    PxQuat qCombined = qPitch * qYaw * qRoll;
+
+    return qCombined;
 }
 
 /// <summary>
@@ -69,8 +103,11 @@ int main() {
     // Create PhysX Scene
     mScene = mPhysics->createScene(sceneDesc);
     
-    // Create one static and one dynamic cube
-    physx::PxRigidStatic* cube1 = createStaticCube(mPhysics, physx::PxVec3(0.1f, 0.2f, 0.3f), physx::PxVec3(1.0f, 1.0f, 1.0f));
+    // Create one static cube
+    physx::PxVec3 position1(0.1f, 0.2f, 0.3f);
+    physx::PxQuat rotation1(eulerAnglesToQuaternion(45, 0, 0)); // degrees
+    physx::PxTransform transform1(position1, rotation1);
+    physx::PxRigidStatic* cube1 = createStaticCube(mPhysics, transform1, physx::PxVec3(1.0f, 1.0f, 1.0f));
     cube1->setName("Cube1");
     mScene->addActor(*cube1);
     
@@ -78,7 +115,10 @@ int main() {
     physx::PxBoxGeometry overlapBoxGeometry(physx::PxVec3(2.0f, 2.0f, 2.0f)); // Adjust dimensions as needed
 
     // Create a transform for the overlap region (position and orientation)
-    physx::PxTransform overlapTransform(physx::PxVec3(0.0f, 0.0f, 0.0f)); // Set the position
+    physx::PxVec3 position2(0.5f, 0.6f, 0.7f);
+    physx::PxQuat rotation2(eulerAnglesToQuaternion(-45, 0, 0)); // degrees
+    physx::PxTransform transform2(position2, rotation2);
+    physx::PxTransform overlapTransform(transform2);
 
     // Create a buffer to store the overlap results
     physx::PxOverlapHit hitBuffer[10]; // Adjust the buffer size as needed
