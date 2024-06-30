@@ -150,6 +150,13 @@ int main() {
         std::cout << "No overlap detected." << std::endl;
     }
 
+    // Show actors in the Physics Visual Debugger
+    while (true)
+    {
+        mScene->simulate(1.0f / 30.0f);
+        mScene->fetchResults(true);
+    }
+
     // Cleanup: TODO
 
     return 0;
