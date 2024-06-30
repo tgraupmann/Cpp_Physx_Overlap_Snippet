@@ -118,14 +118,13 @@ int main() {
     physx::PxVec3 position2(0.5f, 0.6f, 0.7f);
     physx::PxQuat rotation2(eulerAnglesToQuaternion(-45, 0, 0)); // degrees
     physx::PxTransform transform2(position2, rotation2);
-    physx::PxTransform overlapTransform(transform2);
 
     // Create a buffer to store the overlap results
     physx::PxOverlapHit hitBuffer[10]; // Adjust the buffer size as needed
 
     // Perform the overlap query
     physx::PxOverlapBuffer overlapResults(hitBuffer, 10); // Pass the buffer to the overlap query
-    bool overlapStatus = mScene->overlap(overlapBoxGeometry, overlapTransform, overlapResults);
+    bool overlapStatus = mScene->overlap(overlapBoxGeometry, transform2, overlapResults);
 
     if (overlapStatus) {
         // Handle the overlapping objects (e.g., print their names or perform other actions)
