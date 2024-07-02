@@ -5,9 +5,12 @@
 // The code prints the names of the overlapping actors if any overlap is detected.
 // The code can be used as a reference to perform overlap queries in PhysX.
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #include <PxPhysicsAPI.h>
 #include <iostream>
 #include <corecrt_math_defines.h>
+#include "HandleInput.h"
 
 using namespace physx;
 
@@ -151,13 +154,50 @@ int main() {
     }
 
     // Show actors in the Physics Visual Debugger
-    while (true)
+    std::cout << "Ready to use NVidia Physics Visual Debugger" << std::endl;
+    std::cout << "Press ESC to exit." << std::endl;
+    HandleInput inputEsc = HandleInput(VK_ESCAPE);
+    while (!inputEsc.WasReleased(true))
     {
         mScene->simulate(1.0f / 30.0f);
         mScene->fetchResults(true);
     }
 
-    // Cleanup: TODO
+    // Cleanup
+    // remove cube actor from scene
+    if (mScene && cube1)
+    {
+        mScene->removeActor(*cube1);
+    }
+	if (cube1) {
+		cube1->release();
+		cube1 = nullptr;
+	}
+    if (mScene) {
+        mScene->release();
+        mScene = nullptr;
+    }
+    if (mDispatcher) {
+        mDispatcher->release();
+        mDispatcher = nullptr;
+    }
+    if (mPhysics) {
+        mPhysics->release();
+        mPhysics = nullptr;
+        if (mPvd) {
+            PxPvdTransport* transport = mPvd->getTransport();
+            if (transport)
+            {
+                transport->release();
+            }
+            mPvd->release();
+            mPvd = nullptr;
+        }
+    }
+    if (mFoundation) {
+        mFoundation->release();
+        mFoundation = nullptr;
+    }
 
     return 0;
 }
