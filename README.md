@@ -29,11 +29,19 @@ This sample project is a Windows C++ Console App that demonstrates using PhysX t
 **Create a static cube actor**
 
 ```c++
-physx::PxRigidStatic* createStaticCube(physx::PxPhysics* physics, const physx::PxTransform& transform, const physx::PxVec3& dimensions) {
-    physx::PxShape* shape = physics->createShape(physx::PxBoxGeometry(dimensions), *physics->createMaterial(0.5f, 0.5f, 0.6f));
+physx::PxRigidStatic* createStaticCube(
+    physx::PxPhysics* physics,
+    const physx::PxTransform& transform,
+    const physx::PxVec3& dimensions)
+{
+    physx::PxShape* shape =
+        physics->createShape(
+            physx::PxBoxGeometry(dimensions), 
+            *physics->createMaterial(0.5f, 0.5f, 0.6f));
     if (shape)
     {
-        physx::PxRigidStatic* actor = physics->createRigidStatic(transform);
+        physx::PxRigidStatic* actor =
+            physics->createRigidStatic(transform);
         if (actor)
         {
             actor->attachShape(*shape);
@@ -55,7 +63,11 @@ physx::PxRigidStatic* createStaticCube(physx::PxPhysics* physics, const physx::P
     // use a transform with position and rotation
     physx::PxTransform transform1(position1, rotation1);
     // create the static cube actor
-    physx::PxRigidStatic* cube1 = createStaticCube(mPhysics, transform1, physx::PxVec3(1.0f, 1.0f, 1.0f));
+    physx::PxRigidStatic* cube1 =
+        createStaticCube(
+            mPhysics,
+            transform1,
+            physx::PxVec3(1.0f, 1.0f, 1.0f));
     // name the cube for the overlap event message
     cube1->setName("Cube1");
     // add the actor to the scene
@@ -66,37 +78,55 @@ physx::PxRigidStatic* createStaticCube(physx::PxPhysics* physics, const physx::P
 
 ```c++
     // Create a box geometry for overlap query
-    physx::PxBoxGeometry overlapBoxGeometry(physx::PxVec3(2.0f, 2.0f, 2.0f)); // Adjust dimensions as needed
+    physx::PxBoxGeometry overlapBoxGeometry(
+        physx::PxVec3(2.0f, 2.0f, 2.0f));
 
     // Create a transform for the overlap region (position and orientation)
     physx::PxVec3 position2(0.5f, 0.6f, 0.7f);
-    physx::PxQuat rotation2(eulerAnglesToQuaternion(-45, 0, 0)); // degrees
+    physx::PxQuat rotation2(
+        eulerAnglesToQuaternion(-45, 0, 0)); // degrees
     physx::PxTransform transform2(position2, rotation2);
 
     // Create a buffer to store the overlap results
-    physx::PxOverlapHit hitBuffer[10]; // Adjust the buffer size as needed
+    physx::PxOverlapHit hitBuffer[10];
 
     // Perform the overlap query
-    physx::PxOverlapBuffer overlapResults(hitBuffer, 10); // Pass the buffer to the overlap query
-    bool overlapStatus = mScene->overlap(overlapBoxGeometry, transform2, overlapResults);
+    // Pass the buffer to the overlap query
+    physx::PxOverlapBuffer overlapResults(hitBuffer, 10);
+    bool overlapStatus = mScene->overlap(
+        overlapBoxGeometry,
+        transform2,
+        overlapResults);
 
     if (overlapStatus) {
-        // Handle the overlapping objects (e.g., print their names or perform other actions)
-        for (PxU32 i = 0; i < overlapResults.nbTouches; ++i) {
-            const PxOverlapHit& hit = overlapResults.touches[i];
-            PxRigidActor* overlappingActor = hit.actor;
+        // Handle the overlapping objects
+        // (e.g., print their names or perform other actions)
+        for (PxU32 i = 0; i < overlapResults.nbTouches; ++i)
+        {
+            const PxOverlapHit& hit =
+                overlapResults.touches[i];
+            PxRigidActor* overlappingActor =
+                hit.actor;
             if (overlappingActor)
             {
-                std::cout << "Overlap detected with actor:"
-                    << " name=" << overlappingActor->getName()
-                    << " position=(" << overlappingActor->getGlobalPose().p.x
-                    << "," << overlappingActor->getGlobalPose().p.y
-                    << "," << overlappingActor->getGlobalPose().p.z
-                    << ")" << std::endl;
+                std::cout
+                    << "Overlap detected with actor:"
+                    << " name="
+                    << overlappingActor->getName()
+                    << " position=("
+                    << overlappingActor->getGlobalPose().p.x
+                    << ","
+                    << overlappingActor->getGlobalPose().p.y
+                    << ","
+                    << overlappingActor->getGlobalPose().p.z
+                    << ")"
+                    << std::endl;
             }
             else
             {
-                std::cout << "Overlap detected with null actor" << std::endl;
+                std::cout
+                    << "Overlap detected with null actor"
+                    << std::endl;
             }
         }
     }
